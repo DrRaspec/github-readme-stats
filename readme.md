@@ -980,6 +980,31 @@ See [the Vercel documentation](https://vercel.com/docs/concepts/projects/environ
 > [!WARNING]
 > Please remember to redeploy your instance after making any changes to the environment variables so that the updates take effect. The changes will not be applied to the previous deployments.
 
+### Troubleshooting: Vercel deployment still shows old code/data
+
+If your Vercel-hosted instance still serves old output after you push new code, use this checklist:
+
+1. In Vercel project settings, confirm the **Production Branch** is your fork's active branch (usually `main`).
+2. In the Vercel **Deployments** tab, confirm the latest production deployment is built from your newest commit SHA.
+3. Trigger **Redeploy** for the latest production deployment.
+4. If you changed environment variables, redeploy again so they are applied to the new build.
+5. Verify your README card URL points to your own deployment URL (not `github-readme-stats.vercel.app`).
+6. Add a one-time cache-busting query when testing, e.g. `&v=20260305`.
+
+If it still looks stale, check whether the response is cached by inspecting headers:
+
+```bash
+curl -I "https://your-deployment.vercel.app/api/top-langs/?username=<user>"
+```
+
+- `x-vercel-cache: HIT` means cached at Vercel edge.
+- `cache-control` shows the effective TTL.
+
+For self-hosted instances, set `CACHE_SECONDS=0` temporarily in Vercel environment variables and redeploy to disable caching while debugging.
+
+> [!NOTE]
+> Top languages cards have a long default cache period, so stale-looking data is usually cache behavior. After verifying updates, set `CACHE_SECONDS` back to a positive value to avoid rate limits.
+
 ## Keep your fork up to date
 
 You can keep your fork, and thus your private Vercel instance up to date with the upstream using GitHub's [Sync Fork button](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork). You can also use the [pull](https://github.com/wei/pull) package created by [@wei](https://github.com/wei) to automate this process.
